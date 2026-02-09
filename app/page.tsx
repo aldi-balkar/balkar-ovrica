@@ -1,10 +1,33 @@
 'use client';
 
+import { useState } from 'react';
 import MainLayout from '@/components/MainLayout';
 import Image from 'next/image';
 import Avatar from '@/components/Avatar';
+import UpcomingSchedule from '@/components/UpcomingSchedule';
+
+interface CalendarEvent {
+  id: string;
+  summary: string;
+  start: {
+    dateTime?: string;
+    date?: string;
+  };
+  end: {
+    dateTime?: string;
+    date?: string;
+  };
+  description?: string;
+  location?: string;
+}
 
 export default function Home() {
+  const [currentDate] = useState(new Date());
+
+  const formatCurrentMonth = () => {
+    return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
+
   return (
     <MainLayout>
       {/* Hero Section */}
@@ -67,98 +90,9 @@ export default function Home() {
 
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Schedule Section */}
-        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-          <div className="flex justify-between items-center mb-5">
-            <h3 className="text-lg font-semibold text-gray-900">Upcoming Schedule</h3>
-            <div className="flex items-center gap-3">
-              <button className="px-3 py-1.5 bg-gray-100 border border-gray-200 rounded-lg hover:bg-[#2d7a4a] hover:text-white hover:border-[#2d7a4a] transition-all duration-300 text-sm text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                </svg>
-              </button>
-              <span className="text-sm text-gray-700">December 2025</span>
-              <button className="px-3 py-1.5 bg-gray-100 border border-gray-200 rounded-lg hover:bg-[#2d7a4a] hover:text-white hover:border-[#2d7a4a] transition-all duration-300 text-sm text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                </svg>
-              </button>
-              <button className="px-3 py-1.5 bg-gray-100 border border-gray-200 rounded-lg hover:bg-[#2d7a4a] hover:text-white hover:border-[#2d7a4a] transition-all duration-300 text-sm text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          {/* Calendar Days */}
-          <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
-            {['Sun 10', 'Mon 11', 'Tue 12', 'Wed 13', 'Thu 14'].map((day, idx) => (
-              <button
-                key={day}
-                className={`px-5 py-3 rounded-xl whitespace-nowrap text-sm transition-all duration-300 ${
-                  idx === 3
-                    ? 'bg-[#2d7a4a] text-white border border-[#2d7a4a] font-medium'
-                    : 'bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200'
-                }`}
-              >
-                {day}
-              </button>
-            ))}
-          </div>
-
-          {/* Schedule Timeline */}
-          <div className="space-y-4">
-            <div className="text-sm text-gray-500">11 am</div>
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 hover:transform hover:translate-x-1 hover:border-[#2d7a4a] hover:shadow-sm transition-all duration-300">
-              <span className="font-medium text-sm text-gray-900">Imperial Dimnum</span>
-              <p className="text-xs text-gray-500 mt-1">11 Dec • 11:00 AM</p>
-            </div>
-
-            <div className="text-sm text-gray-500">12 pm</div>
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex gap-4 hover:transform hover:translate-x-1 hover:border-[#2d7a4a] hover:shadow-sm transition-all duration-300">
-              <Image
-                src="https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=400&h=200&fit=crop"
-                alt="Event"
-                width={100}
-                height={80}
-                className="rounded-lg object-cover"
-              />
-              <div>
-                <h4 className="font-medium text-sm mb-1 text-gray-900">Explore Forest Fork</h4>
-                <p className="text-xs text-gray-500 mb-2">21 Dec • 12:00 AM</p>
-                <div className="flex items-center gap-1">
-                  <Avatar name="Aldi Permana" size={28} className="border-2 border-gray-200" />
-                  <Avatar name="Bagas Saputra" size={28} className="border-2 border-gray-200" />
-                  <span className="text-xs text-gray-500 ml-1">+2</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex gap-4 hover:transform hover:translate-x-1 hover:border-[#2d7a4a] hover:shadow-sm transition-all duration-300">
-              <Image
-                src="https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400&h=200&fit=crop"
-                alt="Camping"
-                width={100}
-                height={80}
-                className="rounded-lg object-cover"
-              />
-              <div>
-                <h4 className="font-medium text-sm mb-1 text-gray-900">Camping at Ranca Upas</h4>
-                <p className="text-xs text-gray-500 mb-2">11 Dec - 12 Dec • 11:00 AM</p>
-                <div className="flex items-center gap-1">
-                  <Avatar name="Citra Dewi" size={28} className="border-2 border-gray-200" />
-                  <Avatar name="Dimas Pratama" size={28} className="border-2 border-gray-200" />
-                  <span className="text-xs text-gray-500 ml-1">+2</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 hover:transform hover:translate-x-1 hover:border-[#2d7a4a] hover:shadow-sm transition-all duration-300">
-              <span className="font-medium text-sm text-gray-900">Mild Soccer</span>
-              <p className="text-xs text-gray-500 mt-1">7 Dec</p>
-            </div>
-          </div>
+        {/* Google Calendar Schedule Section */}
+        <div className="lg:col-span-2">
+          <UpcomingSchedule />
         </div>
 
         {/* Messages Section */}

@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ovrica - Meeting Management App
 
-## Getting Started
+Web aplikasi untuk manajemen meeting dengan fitur Calendar, Spin Wheel, Notulen, dan Daftar Hadir.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Calendar** - View dan manage jadwal meeting
+- **Spin Wheel** - Random presenter selector dengan konfetti animation
+- **Notulen** - Catatan hasil meeting
+- **Daftar Hadir** - Attendance tracking peserta
+- **Google Calendar Integration** - Sync dengan Google Calendar API
+
+## 📦 Tech Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- Google Calendar API
+
+## 🔧 Setup Google Calendar API
+
+### 1. Create Google Cloud Project
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create new project atau pilih existing project
+3. Enable **Google Calendar API**:
+   - Navigate to "APIs & Services" > "Library"
+   - Search "Google Calendar API"
+   - Click "Enable"
+
+### 2. Get API Credentials
+
+#### Option A: API Key (Public Calendar - Simpler)
+
+1. Go to "APIs & Services" > "Credentials"
+2. Click "Create Credentials" > "API Key"
+3. Copy API key yang di-generate
+4. (Optional) Click "Restrict Key" untuk security:
+   - Application restrictions: HTTP referrers
+   - API restrictions: Google Calendar API
+
+#### Option B: OAuth 2.0 (Private Calendar - More Secure)
+
+1. Go to "APIs & Services" > "Credentials"
+2. Click "Create Credentials" > "OAuth client ID"
+3. Configure consent screen if prompted
+4. Choose "Web application"
+5. Add authorized redirect URIs: `http://localhost:3000`
+6. Copy Client ID
+
+### 3. Configure Calendar Sharing (if using API Key)
+
+1. Open [Google Calendar](https://calendar.google.com/)
+2. Click settings (⚙️) for your calendar
+3. Scroll to "Access permissions"
+4. Check "Make available to public"
+5. Copy your Calendar ID from settings (usually `your-email@gmail.com`)
+
+### 4. Environment Variables
+
+Create `.env.local` file di root project:
+
+```env
+# API Key method (simpler)
+NEXT_PUBLIC_GOOGLE_API_KEY=your_api_key_here
+NEXT_PUBLIC_GOOGLE_CALENDAR_ID=your_calendar_id@gmail.com
+
+# Atau gunakan 'primary' untuk calendar utama (requires OAuth)
+# NEXT_PUBLIC_GOOGLE_CALENDAR_ID=primary
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🏃‍♂️ Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Install dependencies:
+```bash
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Run development server:
+```bash
+npm run dev
+```
 
-## Learn More
+3. Open [http://localhost:3000](http://localhost:3000)
 
-To learn more about Next.js, take a look at the following resources:
+## 📝 Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Google Calendar API memiliki quota limit: 1,000,000 requests/day
+- Untuk production, gunakan OAuth 2.0 dengan proper authentication
+- Test dengan public calendar terlebih dahulu sebelum production
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🎨 Color Palette
 
-## Deploy on Vercel
+- Primary Green: `#2d7a4a`
+- Accent Orange: `#FF6436`
+- Background: `#f9fafb`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📄 License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
