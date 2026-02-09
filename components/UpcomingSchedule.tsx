@@ -99,10 +99,43 @@ export default function UpcomingSchedule() {
   if (events.length === 0) {
     return (
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Upcoming Schedule</h3>
-        <div className="text-center py-8 text-gray-400">
-          <p>📅 No upcoming events</p>
-          <p className="text-sm mt-2">Your calendar is clear!</p>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xl font-semibold text-gray-900">Upcoming Schedule</h3>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">
+              {new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+            </span>
+            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Mini Calendar */}
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 mb-4">
+          <div className="text-center mb-4">
+            <div className="text-6xl font-bold text-[#2d7a4a]">
+              {new Date().getDate()}
+            </div>
+            <div className="text-lg text-gray-600 font-medium">
+              {new Date().toLocaleDateString('id-ID', { weekday: 'long' })}
+            </div>
+            <div className="text-sm text-gray-500">
+              {new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+            </div>
+          </div>
+        </div>
+
+        {/* Empty State */}
+        <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-xl">
+          <div className="text-5xl mb-3">📅</div>
+          <p className="text-gray-900 font-semibold mb-1">No Upcoming Events</p>
+          <p className="text-sm text-gray-500">Your schedule is clear for now</p>
+          <button className="mt-4 px-4 py-2 bg-[#2d7a4a] text-white rounded-lg text-sm font-medium hover:bg-opacity-90 transition-all">
+            + Add New Event
+          </button>
         </div>
       </div>
     );
@@ -110,7 +143,38 @@ export default function UpcomingSchedule() {
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-      <h3 className="text-xl font-semibold text-gray-900 mb-4">Upcoming Schedule</h3>
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-semibold text-gray-900">Upcoming Schedule</h3>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500">
+            {new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+          </span>
+          <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Today's Date Card */}
+      <div className="bg-gradient-to-br from-[#2d7a4a] to-[#4ade80] rounded-xl p-6 mb-6 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-sm opacity-90 mb-1">Today</div>
+            <div className="text-3xl font-bold">
+              {new Date().toLocaleDateString('id-ID', { weekday: 'long' })}
+            </div>
+            <div className="text-sm opacity-90 mt-1">
+              {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </div>
+          </div>
+          <div className="text-6xl font-bold opacity-20">
+            {new Date().getDate()}
+          </div>
+        </div>
+      </div>
+
       <div className="space-y-3">
         {events.map((event) => (
           <div
