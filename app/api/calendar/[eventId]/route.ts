@@ -22,9 +22,8 @@ export async function PATCH(
     const body = await request.json();
     const { summary, description, startDateTime, endDateTime, location } = body;
 
-    const calendarId = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_ID;
     const response = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId || 'primary')}/events/${params.eventId}`,
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events/${params.eventId}`,
       {
         method: 'PATCH',
         headers: {
@@ -79,9 +78,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'No access token' }, { status: 401 });
     }
 
-    const calendarId = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_ID;
     const response = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId || 'primary')}/events/${params.eventId}`,
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events/${params.eventId}`,
       {
         method: 'DELETE',
         headers: {

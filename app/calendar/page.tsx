@@ -47,15 +47,13 @@ export default function CalendarPage() {
   // Fetch events from Google Calendar
   useEffect(() => {
     const fetchEvents = async () => {
+      if (!session?.accessToken) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
-        const calendarId = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_ID;
-
-        if (!apiKey || !calendarId) {
-          console.error('Missing API credentials');
-          return;
-        }
 
         // Get start and end of the current month
         const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
@@ -64,9 +62,13 @@ export default function CalendarPage() {
         const timeMin = startOfMonth.toISOString();
         const timeMax = endOfMonth.toISOString();
 
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime`;
+        const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime`;
 
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${session.accessToken}`,
+          },
+        });
         
         if (!response.ok) {
           throw new Error(`API Error: ${response.status}`);
@@ -83,7 +85,7 @@ export default function CalendarPage() {
     };
 
     fetchEvents();
-  }, [currentDate]);
+  }, [currentDate, session]);
 
   const monthNames = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',

@@ -27,10 +27,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create event in Google Calendar
-    const calendarId = process.env.NEXT_PUBLIC_GOOGLE_CALENDAR_ID;
+    // Create event in Google Calendar - using primary (user's own calendar)
     const response = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId || 'primary')}/events`,
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events`,
       {
         method: 'POST',
         headers: {
