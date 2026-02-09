@@ -14,6 +14,7 @@ interface CalendarEvent {
     date?: string;
   };
   location?: string;
+  description?: string;
 }
 
 export default function UpcomingSchedule() {
@@ -52,6 +53,42 @@ export default function UpcomingSchedule() {
     fetchEvents();
   }, []);
 
+  const isToday = (dateString?: string) => {
+    if (!dateString) return false;
+    const eventDate = new Date(dateString);
+    const today = new Date();
+    return (
+      eventDate.getDate() === today.getDate() &&
+      eventDate.getMonth() === today.getMonth() &&
+      eventDate.getFullYear() === today.getFullYear()
+    );
+  };
+
+  const isTomorrow = (dateString?: string) => {
+    if (!dateString) return false;
+    const eventDate = new Date(dateString);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return (
+      eventDate.getDate() === tomorrow.getDate() &&
+      eventDate.getMonth() === tomorrow.getMonth() &&
+      eventDate.getFullYear() === tomorrow.getFullYear()
+    );
+  };
+
+  const getRelativeDate = (dateString?: string) => {
+    if (isToday(dateString)) return 'Hari Ini';
+    if (isTomorrow(dateString)) return 'Besok';
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', { 
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -74,10 +111,13 @@ export default function UpcomingSchedule() {
   if (loading) {
     return (
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Upcoming Schedule</h3>
-        <div className="animate-pulse space-y-3">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
+          <div className="h-6 w-48 bg-gray-200 rounded animate-pulse" />
+        </div>
+        <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 bg-gray-200 rounded-xl"></div>
+            <div key={i} className="h-24 bg-gray-100 rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -87,8 +127,8 @@ export default function UpcomingSchedule() {
   if (error) {
     return (
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Upcoming Schedule</h3>
         <div className="text-center py-8">
+          <div className="text-5xl mb-4">⚠️</div>
           <p className="text-red-600 mb-2">⚠️ Failed to load calendar</p>
           <p className="text-sm text-gray-500">{error}</p>
         </div>
@@ -114,15 +154,15 @@ export default function UpcomingSchedule() {
         </div>
 
         {/* Mini Calendar */}
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 mb-4">
-          <div className="text-center mb-4">
-            <div className="text-6xl font-bold text-[#2d7a4a]">
-              {new Date().getDate()}
-            </div>
-            <div className="text-lg text-gray-600 font-medium">
+        <div className="bg-gradient-to-br from-[#2d7a4a] to-[#1a4d2e] rounded-2xl p-6 mb-6 max-w-xs mx-auto">
+          <div className="text-white text-center">
+            <div className="text-sm font-medium mb-2">
               {new Date().toLocaleDateString('id-ID', { weekday: 'long' })}
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-6xl font-bold mb-2">
+              {new Date().getDate()}
+            </div>
+            <div className="text-sm opacity-90">
               {new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
             </div>
           </div>
@@ -130,12 +170,20 @@ export default function UpcomingSchedule() {
 
         {/* Empty State */}
         <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-xl">
-          <div className="text-5xl mb-3">📅</div>
-          <p className="text-gray-900 font-semibold mb-1">No Upcoming Events</p>
-          <p className="text-sm text-gray-500">Your schedule is clear for now</p>
-          <button className="mt-4 px-4 py-2 bg-[#2d7a4a] text-white rounded-lg text-sm font-medium hover:bg-opacity-90 transition-all">
-            + Add New Event
-          </button>
+          <div className="text-5xl mb-3">📭</div>
+          <p className="text-gray-900 font-semibold mb-1">Tidak Ada Jadwal Meeting</p>
+          <p className="text-sm text-gray-500 mb-4">Calendar kamu kosong untuk hari ini</p>
+          <a
+            href="https://calendar.google.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#FF6436] text-white rounded-xl text-sm font-semibold hover:bg-[#e55a30] transition-all hover:scale-105"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Tambah Event Baru
+          </a>
         </div>
       </div>
     );
@@ -176,54 +224,101 @@ export default function UpcomingSchedule() {
       </div>
 
       <div className="space-y-3">
-        {events.map((event) => (
-          <div
-            key={event.id}
-            className="flex items-start gap-4 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all duration-300 cursor-pointer group"
-          >
-            {/* Date Badge */}
-            <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-[#2d7a4a] to-[#4ade80] rounded-xl flex flex-col items-center justify-center text-white shadow-md">
-              <span className="text-2xl font-bold">
-                {new Date(event.start.dateTime || event.start.date || '').getDate()}
-              </span>
-              <span className="text-xs uppercase">
-                {new Date(event.start.dateTime || event.start.date || '').toLocaleDateString('id-ID', { month: 'short' })}
-              </span>
-            </div>
-
-            {/* Event Details */}
-            <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-gray-900 group-hover:text-[#2d7a4a] transition-colors truncate">
-                {event.summary}
-              </h4>
-              <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
-                <span>🕐</span>
-                <span>
-                  {event.start.dateTime ? formatTime(event.start.dateTime) : 'All day'}
-                </span>
-              </div>
-              {event.location && (
-                <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
-                  <span>📍</span>
-                  <span className="truncate">{event.location}</span>
+        {events.map((event) => {
+          const eventDate = event.start.dateTime || event.start.date;
+          const isTodayEvent = isToday(eventDate);
+          
+          return (
+            <div
+              key={event.id}
+              className={`group relative overflow-hidden rounded-xl border-2 transition-all hover:shadow-lg ${
+                isTodayEvent
+                  ? 'bg-gradient-to-br from-[#2d7a4a] to-[#1a4d2e] border-[#2d7a4a] text-white'
+                  : 'bg-gray-50 border-gray-200 hover:border-[#2d7a4a]'
+              }`}
+            >
+              {/* Badge "HARI INI" untuk event hari ini */}
+              {isTodayEvent && (
+                <div className="absolute top-3 right-3">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-[#FF6436] text-white text-xs font-bold rounded-full animate-pulse">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                    </svg>
+                    HARI INI
+                  </span>
                 </div>
               )}
-            </div>
 
-            {/* Arrow Icon */}
-            <div className="flex-shrink-0 text-gray-400 group-hover:text-[#2d7a4a] group-hover:translate-x-1 transition-all">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              <div className="p-4">
+                <div className="flex items-start gap-4">
+                  {/* Date Badge */}
+                  <div className={`flex-shrink-0 w-16 h-16 rounded-xl flex flex-col items-center justify-center ${
+                    isTodayEvent ? 'bg-white/20' : 'bg-white border border-gray-200'
+                  }`}>
+                    <span className={`text-xs font-medium ${isTodayEvent ? 'text-white' : 'text-gray-500'}`}>
+                      {new Date(eventDate || '').toLocaleDateString('id-ID', { month: 'short' })}
+                    </span>
+                    <span className={`text-2xl font-bold ${isTodayEvent ? 'text-white' : 'text-gray-900'}`}>
+                      {new Date(eventDate || '').getDate()}
+                    </span>
+                  </div>
+
+                  {/* Event Details */}
+                  <div className="flex-1 min-w-0 pr-16">
+                    <h4 className={`font-semibold text-base mb-2 ${isTodayEvent ? 'text-white' : 'text-gray-900'}`}>
+                      {event.summary}
+                    </h4>
+                    
+                    <div className="space-y-1.5">
+                      {/* Relative Date */}
+                      <div className={`text-sm flex items-center gap-1.5 ${isTodayEvent ? 'text-white/90' : 'text-gray-600'}`}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        {getRelativeDate(eventDate)}
+                      </div>
+
+                      {/* Time */}
+                      <div className={`text-sm flex items-center gap-1.5 ${isTodayEvent ? 'text-white/90' : 'text-gray-600'}`}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {event.start.dateTime ? formatTime(event.start.dateTime) : 'All day'}
+                      </div>
+
+                      {/* Location */}
+                      {event.location && (
+                        <div className={`text-sm flex items-center gap-1.5 truncate ${isTodayEvent ? 'text-white/90' : 'text-gray-500'}`}>
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <span className="truncate">{event.location}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Arrow Icon */}
+                  <div className={`flex-shrink-0 transition-all ${isTodayEvent ? 'text-white/60 group-hover:text-white' : 'text-gray-400 group-hover:text-[#2d7a4a]'} group-hover:translate-x-1`}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* View All Button */}
-      <button className="w-full mt-4 py-2 text-sm text-[#2d7a4a] hover:bg-gray-50 rounded-lg transition-colors font-medium">
+      <a
+        href="/calendar"
+        className="block w-full mt-4 py-2.5 text-center text-sm text-[#2d7a4a] hover:bg-gray-50 rounded-lg transition-colors font-medium"
+      >
         View All Events →
-      </button>
+      </a>
     </div>
   );
 }

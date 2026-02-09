@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Avatar from './Avatar';
+import AuthButton from './AuthButton';
+import { useSession } from 'next-auth/react';
 
 const navItems = [
   { name: 'Calendar', href: '/calendar', icon: 'calendar' },
@@ -16,6 +18,7 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   return (
     <header className="bg-white/95 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-50">
@@ -90,10 +93,16 @@ export default function Header() {
               </svg>
             </button>
 
-            {/* User Avatar */}
-            <div className="cursor-pointer hover:scale-110 transition-all duration-200">
-              <Avatar name="Aldi Permana" size={40} className="border-2 border-[#2d7a4a]" />
-            </div>
+            {/* Auth Button or User Avatar */}
+            {session ? (
+              <div className="cursor-pointer hover:scale-110 transition-all duration-200">
+                <Avatar name={session.user?.name || "User"} size={40} className="border-2 border-[#2d7a4a]" />
+              </div>
+            ) : (
+              <div className="hidden sm:block">
+                <AuthButton />
+              </div>
+            )}
 
             {/* Mobile Menu Button */}
             <button
@@ -116,6 +125,13 @@ export default function Header() {
         {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
           <nav className="lg:hidden mt-4 pb-4 space-y-2 border-t border-gray-200 pt-4">
+            {/* Auth Button for Mobile */}
+            {!session && (
+              <div className="mb-3 px-2">
+                <AuthButton />
+              </div>
+            )}
+            
             {navItems.map((item) => (
               <Link
                 key={item.href}
