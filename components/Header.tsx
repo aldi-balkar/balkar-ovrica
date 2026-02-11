@@ -10,12 +10,9 @@ import { useSession } from 'next-auth/react';
 const navItems = [
   { name: 'Calendar', href: '/calendar', icon: 'calendar' },
   { name: 'Spin Wheel', href: '/spin-wheel', icon: 'refresh' },
-  { name: 'Notulen', href: '/notulen', icon: 'document' },
-  { name: 'Daftar Hadir', href: '/daftar-hadir', icon: 'clipboard' },
 ];
 
 export default function Header() {
-  const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -27,7 +24,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link href="/calendar" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-[#2d7a4a] rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">O</span>
             </div>
@@ -35,12 +32,12 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation Menu */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-2">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                   pathname === item.href
                     ? 'bg-[#2d7a4a] text-white'
                     : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
@@ -74,30 +71,9 @@ export default function Header() {
 
           {/* Right Section */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Search - Hidden on mobile */}
-            <div className="hidden md:flex items-center bg-gray-100 rounded-lg px-4 py-2 min-w-[200px] lg:min-w-[250px]">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-400">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search here..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-none outline-none text-gray-900 text-sm flex-1 ml-2 placeholder:text-gray-400"
-              />
-            </div>
-
             {/* Auth Button or User Avatar */}
             {session ? (
               <div className="flex items-center gap-3">
-                {/* Notification Button */}
-                <button className="hidden sm:flex w-10 h-10 bg-gray-100 rounded-full items-center justify-center hover:bg-gray-200 transition-all duration-200">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-600">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-                  </svg>
-                </button>
-
                 {/* User Avatar with Dropdown */}
                 <div className="relative">
                   <div 

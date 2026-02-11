@@ -8,7 +8,12 @@ import Avatar from './Avatar';
 interface CalendarEvent {
   id: string;
   summary: string;
+  description?: string;
   start: {
+    dateTime?: string;
+    date?: string;
+  };
+  end?: {
     dateTime?: string;
     date?: string;
   };
@@ -22,12 +27,20 @@ interface CalendarEvent {
     displayName?: string;
     responseStatus?: string;
   }>;
+  hangoutLink?: string;
+  conferenceData?: {
+    entryPoints?: Array<{
+      uri?: string;
+    }>;
+  };
 }
 
 export default function MyMeetings() {
   const { data: session } = useSession();
   const [myMeetings, setMyMeetings] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   useEffect(() => {
     if (session?.accessToken) {
@@ -183,6 +196,10 @@ export default function MyMeetings() {
             return (
               <div
                 key={meeting.id}
+                onClick={() => {
+                  setSelectedEvent(meeting);
+                  setShowDetailModal(true);
+                }}
                 className="group p-4 rounded-xl border-2 border-gray-200 hover:border-[#2d7a4a] hover:shadow-md transition-all cursor-pointer"
               >
                 <div className="flex items-start gap-4">
@@ -258,6 +275,182 @@ export default function MyMeetings() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Detail Modal */}
+      {showDetailModal && selectedEvent && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in" onClick={() => setShowDetailModal(false)}>
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-gray-200 flex items-start justify-between">
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">{selectedEvent.summary}</h2>
+                {selectedEvent.organizer && (
+                  <p className="text-sm text-gray-600">
+                    Organized by {selectedEvent.organizer.displayName || selectedEvent.organizer.email}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setShowDetailModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-gray-600">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="overflow-y-auto max-h-[calc(90vh-140px)] px-6 py-4 space-y-6">
+              {/* Date & Time */}
+              <div className="flex items-start gap-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-gray-600 mt-0.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <div className="text-base font-medium text-gray-900">
+                    {new Date(selectedEvent.start.dateTime || selectedEvent.start.date || '').toLocaleDateString('id-ID', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    {formatTime(selectedEvent.start.dateTime)} - {formatTime(selectedEvent.end?.dateTime)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Location */}
+              {selectedEvent.location && (
+                <div className="flex items-start gap-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-gray-600 mt-0.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                  </svg>
+                  <div className="text-base text-gray-900">{selectedEvent.location}</div>
+                </div>
+              )}
+
+              {/* Google Meet Link */}
+              {(selectedEvent.hangoutLink || selectedEvent.conferenceData?.entryPoints?.[0]?.uri) && (
+                <div className="flex items-start gap-4">
+                  <svg className="w-6 h-6 text-gray-600 mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15 12c0 1.654-1.346 3-3 3s-3-1.346-3-3 1.346-3 3-3 3 1.346 3 3zm9-.449s-4.252 8.449-11.985 8.449c-7.18 0-12.015-8.449-12.015-8.449s4.446-7.551 12.015-7.551c7.694 0 11.985 7.551 11.985 7.551zm-7 .449c0-2.757-2.243-5-5-5s-5 2.243-5 5 2.243 5 5 5 5-2.243 5-5z"/>
+                  </svg>
+                  <div>
+                    <div className="text-sm text-gray-600 mb-1">Video conference</div>
+                    <a
+                      href={selectedEvent.hangoutLink || selectedEvent.conferenceData?.entryPoints?.[0]?.uri}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#2d7a4a] hover:text-[#245c3a] font-medium flex items-center gap-1"
+                    >
+                      Join with Google Meet
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* Attendees */}
+              {selectedEvent.attendees && selectedEvent.attendees.length > 0 && (
+                <div className="flex items-start gap-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-gray-600 mt-0.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                  </svg>
+                  <div className="flex-1">
+                    <div className="text-sm text-gray-600 mb-2">
+                      {selectedEvent.attendees.length} guest{selectedEvent.attendees.length > 1 ? 's' : ''}
+                    </div>
+                    <div className="space-y-2">
+                      {selectedEvent.attendees.map((attendee, idx) => {
+                        const colors = [
+                          'bg-blue-500',
+                          'bg-green-500', 
+                          'bg-purple-500',
+                          'bg-pink-500',
+                          'bg-orange-500',
+                          'bg-red-500',
+                          'bg-indigo-500',
+                          'bg-teal-500'
+                        ];
+                        const colorClass = colors[idx % colors.length];
+                        
+                        return (
+                        <div key={idx} className="flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-full ${colorClass} flex items-center justify-center text-sm font-medium text-white`}>
+                            {(attendee.displayName || attendee.email || 'U').charAt(0).toUpperCase()}
+                          </div>
+                          <div className="flex-1">
+                            <div className="text-sm font-medium text-gray-900">
+                              {attendee.displayName || attendee.email}
+                            </div>
+                            {attendee.email && attendee.displayName && (
+                              <div className="text-xs text-gray-500">{attendee.email}</div>
+                            )}
+                          </div>
+                          <div className={`text-xs px-2 py-1 rounded-full ${
+                            attendee.responseStatus === 'accepted' ? 'bg-green-100 text-green-700' :
+                            attendee.responseStatus === 'declined' ? 'bg-red-100 text-red-700' :
+                            'bg-gray-100 text-gray-600'
+                          }`}>
+                            {attendee.responseStatus === 'accepted' ? '✓ Yes' :
+                             attendee.responseStatus === 'declined' ? '✗ No' :
+                             '? Maybe'}
+                          </div>
+                        </div>
+                      );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Description */}
+              {selectedEvent.description && (
+                <div className="flex items-start gap-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-gray-600 mt-0.5 flex-shrink-0">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                  </svg>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm text-gray-600 mb-1">Description</div>
+                    <div className="text-base text-gray-900 whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                      {selectedEvent.description.replace(/<[^>]*>/g, '').substring(0, 500)}
+                      {selectedEvent.description.length > 500 && '...'}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Actions - Only show for organizer */}
+            {selectedEvent.organizer?.email === session?.user?.email && (
+              <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t border-gray-200 rounded-b-2xl">
+                <button
+                  onClick={() => {
+                    const meetLink = selectedEvent.hangoutLink || selectedEvent.conferenceData?.entryPoints?.[0]?.uri;
+                    if (meetLink) {
+                      window.open(meetLink, '_blank');
+                    } else {
+                      alert('Tautan meeting tidak tersedia');
+                    }
+                  }}
+                  className="w-full px-4 py-3 bg-[#2d7a4a] text-white rounded-lg font-medium hover:bg-[#235d3a] transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                  </svg>
+                  Mulai Meeting Sekarang
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

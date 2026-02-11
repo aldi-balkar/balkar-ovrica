@@ -10,7 +10,6 @@ const navItems = [
   { name: 'Messages', href: '/messages' },
   { name: 'Settings', href: '/settings' },
   { name: 'Notulen', href: '/notulen' },
-  { name: 'Daftar Hadir', href: '/attendance' },
   { name: 'Presentasi', href: '/presentation' },
   { name: 'Spin Wheel', href: '/spinwheel' },
 ];

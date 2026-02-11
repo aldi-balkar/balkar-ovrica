@@ -42,7 +42,7 @@ export default function Home() {
             href="/notulen"
             className="px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-[#2d7a4a] hover:text-[#2d7a4a] transition-all duration-300"
           >
-            View Notulen
+            Request a Demo
           </Link>
         </div>
 
